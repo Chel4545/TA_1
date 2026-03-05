@@ -2,8 +2,27 @@
 #define LAB1_REGEX_H
 
 #include <string>
+#include <string_view>
+#include <regex>
 #include "RelationStore.h"
 
-bool checkComandRegex(const std::string& fileName, RelationStore& relStor);
+class RegExClass {
+private:
+    inline static const std::regex createListRegex{
+            R"(^\s*create\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s*\((\s*[a-zA-Z_.][a-zA-Z0-9_.]*(\s*,\s*[a-zA-Z_.][a-zA-Z0-9_.]*)*\s*)\)\s*$)"
+    };
+
+    inline static const std::regex joinListRegex{
+            R"(^\s*create\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s+as\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s+join\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s*$)"
+    };
+
+    RelationStore& store;
+
+public:
+    explicit RegExClass(RelationStore& relStore);
+
+    bool checkComandRegex(std::string_view line);
+};
+
 
 #endif

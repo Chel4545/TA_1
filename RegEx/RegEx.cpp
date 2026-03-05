@@ -1,42 +1,34 @@
-#include <fstream>
-#include <regex>
+#include <vector>
+#include <sstream>
+
 #include "RegEx.h"
 
-static std::regex createListRegex(
-        R"(^\s*create\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s*\((\s*[a-zA-Z_.][a-zA-Z0-9_.]*(\s*,\s*[a-zA-Z_.][a-zA-Z0-9_.]*)*\s*)\)\s*$)"
-);
+RegExClass::RegExClass(RelationStore &relStore) : store(relStore) {}
 
-static std::regex joinListRegex(
-        R"(^\s*create\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s+as\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s+join\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s*$)"
-);
+bool RegExClass::checkComandRegex(std::string_view line) {
 
-bool checkComandRegex(const std::string& fileName, RelationStore& relStor) {
-    std::ifstream file(fileName);
-    if (!file.is_open()) return false;
-
-    std::string line;
     std::smatch match;
     bool operationStatus = true;
 
-    while (std::getline(file, line)) {
-        if(std::regex_match(line, match, createListRegex)) {
+    const std::string s(line);
 
-            std::vector<std::string> tokens;
-            std::stringstream ss(match[2]);
-            std::string token;
-            while (std::getline(ss, token, ',')) {
-                token.erase(0, token.find_first_not_of(" \t"));
-                token.erase(token.find_last_not_of(" \t") + 1);
-                tokens.push_back(token);
-            }
-            relStor.addRel(match[1], tokens);
+    if(std::regex_match(s, match, createListRegex)) {
+
+        std::vector<std::string> tokens;
+        std::stringstream ss(match[2].str());
+
+        std::string token;
+        while (std::getline(ss, token, ',')) {
+            token.erase(0, token.find_first_not_of(" \t"));
+            token.erase(token.find_last_not_of(" \t") + 1);
+            tokens.push_back(token);
         }
-        else if (std::regex_match(line, match, joinListRegex)) {
-            relStor.makeJoin(match[1], match[2], match[3]);
-        } else {
-            operationStatus = false;
-            continue;
-        }
+        store.addRel(match[1].str(), tokens);
+    }
+    else if (std::regex_match(s, match, joinListRegex)) {
+        store.makeJoin(match[1].str(), match[2].str(), match[3].str());
+    } else {
+        operationStatus = false;
     }
     return operationStatus;
 }

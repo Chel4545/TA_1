@@ -1,4 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+
+
 #include "RelationStore.h"
 #include "RegEx.h"
 
@@ -8,10 +12,19 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    RelationStore store;
+    std::ifstream file(argv[1]);
 
-    checkComandRegex(std::string(argv[1]), store);
-    store.printAllRels();
+    if (!file.is_open()) {
+        std::cout << "Cannot open file\n";
+        return 1;
+    }
+
+    std::string line;
+
+    while (std::getline(file, line)) {
+        bool res = pars(line);
+        std::cout << res << "\n";
+    }
 
     return 0;
 }

@@ -1,0 +1,168 @@
+%{
+#include <iostream>
+
+%}
+
+%class SmcClass
+%fsmclass ContextFSM
+%fsmfile ContextFSM
+
+%start ExampleMap::Start
+
+//состояния
+%map ExampleMap
+%%
+
+Start
+{
+    CREATE
+        GotCreate
+        {}
+
+    Default
+        Error
+        {}
+}
+
+GotCreate
+{
+    ID(name: std::string)
+        GotName
+        {
+            setName0(name);
+        }
+
+    Default
+        Error
+        {}
+}
+
+GotName
+{
+    SymbolLparent
+        InList
+        {}
+
+    CommandAs
+        GotAs
+        {}
+
+    Default
+        Error
+        {}
+}
+
+InList
+{
+    ID(attribute: std::string)
+        AfterId
+        {
+            setAttribute(attribute);
+        }
+
+    Default
+        Error
+        {}
+}
+
+AfterId
+{
+    SymbolComma
+        InList
+        {}
+
+    SymbolRparent
+        End
+        {
+            setCreateList();
+        }
+
+    Default
+        Error
+        {}
+}
+
+//2команда
+
+GotAs
+{
+    ID(name: std::string)
+        GotNameAs
+        {
+            setName1(name);
+        }
+
+    Default
+        Error
+        {}
+}
+
+GotNameAs
+{
+    CommandJoin
+        GotJoin
+        {}
+
+    Default
+        Error
+        {}
+}
+
+GotJoin
+{
+    ID(name: std::string)
+        End
+        {
+            setName2(name);
+            setCreateJoin();
+        }
+
+    Default
+        Error
+        {}
+
+}
+
+End
+{
+    EOL
+        Accept
+        {
+            executeCommand();
+            resetLine();
+        }
+
+    Default
+        Error
+        {
+            syntaxError();
+            resetLine();
+        }
+}
+
+Accept
+{
+    Default
+        nil
+        {}
+}
+
+Error
+{
+    Default
+        nil
+        {}
+}
+
+/* Global transitions */
+Default
+{
+    Default
+        Error
+        {
+            syntaxError();
+            resetLine();
+        }
+}
+
+%%
