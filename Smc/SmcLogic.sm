@@ -26,10 +26,10 @@ Start
 
 GotCreate
 {
-    ID(name: std::string)
+    ID(name: std::string) //хуйня, передавать по одной букве
         GotName
         {
-            setName0(name);
+            setName0(name); //наш пользовательский код
         }
 
     Default
@@ -39,9 +39,15 @@ GotCreate
 
 GotName
 {
-    SymbolLparent
+    SymbolLparent //[ctxt.pos < module.size] - крч на языке проги тут пишем и возвращаем bool, условие перехода в состояние
         InList
         {}
+
+//    можно назвать одинаково, главное разные условия в [] прописать
+//    SymbolLparent
+//        InList
+//        {}
+//
 
     CommandAs
         GotAs
@@ -143,7 +149,7 @@ End
 Accept
 {
     Default
-        nil
+        nil //переход в самого себя
         {}
 }
 
@@ -155,7 +161,7 @@ Error
 }
 
 /* Global transitions */
-Default
+Default //можно убрать Default во всех остальных и он автоматически подставиться
 {
     Default
         Error

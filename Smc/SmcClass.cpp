@@ -21,27 +21,27 @@ void SmcClass::setAttribute(const std::string &attr) {
 }
 
 void SmcClass::setCreateList() {
-    currentCommand = CommandType::CREATE_LIST;
+    currentCommand = Command::CREATE_LIST;
 }
 
 void SmcClass::setCreateJoin() {
-    currentCommand = CommandType::CREATE_JOIN;
+    currentCommand = Command::CREATE_JOIN;
 }
 
 void SmcClass::executeCommand() const{
     if (!lineOk) return;
 
-    if (currentCommand == CommandType::CREATE_LIST) {
+    if (currentCommand == Command::CREATE_LIST) {
         store.addRel(name0, attributes);
     }
-    else if (currentCommand == CommandType::CREATE_JOIN) {
+    else if (currentCommand == Command::CREATE_JOIN) {
         store.makeJoin(name0, name1, name2);
     }
 }
 
 void SmcClass::resetLine() {
     attributes.clear();
-    currentCommand = CommandType::NONE;
+    currentCommand = Command::NONE;
     lineOk = true;
 }
 
@@ -51,5 +51,5 @@ bool SmcClass::isLineOk() const {
 
 void SmcClass::syntaxError() {
     lineOk = false;
-    currentCommand = CommandType::NONE;
+    currentCommand = Command::NONE;
 }

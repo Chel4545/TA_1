@@ -1,3 +1,5 @@
+//удалить
+
 #ifndef LAB1_CMSCLASS_H
 #define LAB1_CMSCLASS_H
 
@@ -6,8 +8,7 @@
 #include <utility>
 #include "../Store/RelationStore.h"
 
-enum class CommandType
-{
+enum class Command {
     NONE,
     CREATE_LIST,
     CREATE_JOIN
@@ -22,7 +23,7 @@ private:
     std::string name2;
     std::vector<std::string> attributes;
 
-    CommandType currentCommand = CommandType::NONE;
+    Command currentCommand = Command::NONE;
 
     bool lineOk = true;
 

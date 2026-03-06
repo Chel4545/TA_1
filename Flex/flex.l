@@ -1,5 +1,4 @@
 %{
-#include <FlexLexer.h>
 #include <iostream>
 #include "../Store/RelationStore.h"
 
@@ -59,7 +58,7 @@ join                    { return static_cast<int>(Token::COMMAND_JOIN);   }
 %%
 
 
-class FlexParser {
+class FlexParser : public IPars {
 private:
     State state = State::START;
 
@@ -75,7 +74,7 @@ private:
 public:
     explicit FlexParser(RelationStore& s) : store(s) {};
 
-    bool processToken(std::string_view line) {
+    bool pars(std::string_view line) {
         state = State::START;
         attributes.clear();
         currentCommand = CommandType::NONE;
@@ -195,4 +194,4 @@ public:
 
         return state != State::ERROR_STATE;
     }
-}
+};

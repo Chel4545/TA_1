@@ -5,9 +5,11 @@
 #include <string_view>
 #include <regex>
 #include "RelationStore.h"
+#include "../IPars.h"
 
-class RegExClass {
+class RegExClass : public IPars {
 private:
+    //мб поделить
     inline static const std::regex createListRegex{
             R"(^\s*create\s+([a-zA-Z_.][a-zA-Z0-9_.]*)\s*\((\s*[a-zA-Z_.][a-zA-Z0-9_.]*(\s*,\s*[a-zA-Z_.][a-zA-Z0-9_.]*)*\s*)\)\s*$)"
     };
@@ -21,7 +23,7 @@ private:
 public:
     explicit RegExClass(RelationStore& relStore);
 
-    bool checkComandRegex(std::string_view line);
+    bool pars(std::string_view line);
 };
 
 

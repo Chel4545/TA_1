@@ -5,7 +5,7 @@
 
 RegExClass::RegExClass(RelationStore &relStore) : store(relStore) {}
 
-bool RegExClass::checkComandRegex(std::string_view line) {
+bool RegExClass::pars(std::string_view line) {
 
     std::smatch match;
     bool operationStatus = true;

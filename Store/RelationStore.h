@@ -5,9 +5,12 @@
 #include <vector>
 #include <string>
 
+#include "../IPars.h"
+
 class RelationStore {
 private:
     std::map<std::string, std::vector<std::string>> rels;
+    //добавить статистику
 
 public:
     std::vector<std::string>& getAttrs(const std::string& name);

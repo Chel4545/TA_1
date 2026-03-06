@@ -1,10 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <memory>
 
 
-#include "RelationStore.h"
+#include "IPars.h"
 #include "RegEx.h"
+#include "SmcClass.h"
+//#include "lex.yy.c"
+#include "RelationStore.h"
+
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -12,7 +17,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::ifstream file(argv[1]);
+    std::ifstream file(argv[2]);
 
     if (!file.is_open()) {
         std::cout << "Cannot open file\n";
@@ -20,9 +25,12 @@ int main(int argc, char* argv[]) {
     }
 
     std::string line;
+    RelationStore store;
+    std::unique_ptr<IPars> Pars = std::make_unique<RegExClass>(store);
+    //std::unique_ptr<IPars> Pars = std::make_unique<FlexParser>(store);
 
     while (std::getline(file, line)) {
-        bool res = pars(line);
+        bool res = Pars->pars(line);
         std::cout << res << "\n";
     }
 
