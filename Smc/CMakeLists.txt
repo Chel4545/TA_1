@@ -1,6 +1,4 @@
 add_library(smc_module STATIC
-        lexer.cpp
-        lexer.h
         SmcClass.cpp
         SmcClass.h
 )

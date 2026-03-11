@@ -1,6 +1,5 @@
 %{
 #include <iostream>
-
 %}
 
 %class SmcClass
@@ -15,160 +14,182 @@
 
 Start
 {
-    CREATE
-        GotCreate
-        {}
+    process(token: const Token&) [ctxt.IsCreate(token)]
+    GotCreate
+    {
+        resetLine();
+    }
 
-    Default
-        Error
-        {}
+    process(token: const Token&) [ctxt.IsEol(token)]
+    nil
+    {}
+
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 GotCreate
 {
-    ID(name: std::string) //хуйня, передавать по одной букве
-        GotName
-        {
-            setName0(name); //наш пользовательский код
-        }
+    process(token: const Token&) [ctxt.IsId(token)]
+    GotName
+    {
+        setName0(token.text);
+    }
 
-    Default
-        Error
-        {}
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 GotName
 {
-    SymbolLparent //[ctxt.pos < module.size] - крч на языке проги тут пишем и возвращаем bool, условие перехода в состояние
-        InList
-        {}
+    process(token: const Token&) [ctxt.IsLParen(token)]
+    InList
+    {
+        setCreateList();
+    }
 
-//    можно назвать одинаково, главное разные условия в [] прописать
-//    SymbolLparent
-//        InList
-//        {}
-//
+    process(token: const Token&) [ctxt.IsAs(token)]
+    GotAs
+    {
+        setCreateJoin();
+    }
 
-    CommandAs
-        GotAs
-        {}
-
-    Default
-        Error
-        {}
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 InList
 {
-    ID(attribute: std::string)
-        AfterId
-        {
-            setAttribute(attribute);
-        }
+    process(token: const Token&) [ctxt.IsId(token)]
+    AfterId
+    {
+        setAttribute(token.text);
+    }
 
-    Default
-        Error
-        {}
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 AfterId
 {
-    SymbolComma
-        InList
-        {}
+    process(token: const Token&) [ctxt.IsComma(token)]
+    InList
+    {}
 
-    SymbolRparent
-        End
-        {
-            setCreateList();
-        }
+    process(token: const Token&) [ctxt.IsRParen(token)]
+    End
+    {
+        markCreateList();/.тут выполнение команды
+    }
 
-    Default
-        Error
-        {}
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
-
-//2команда
 
 GotAs
 {
-    ID(name: std::string)
-        GotNameAs
-        {
-            setName1(name);
-        }
+    process(token: const Token&) [ctxt.IsId(token)]
+    GotNameAs
+    {
+        setName1(token.text);
+    }
 
-    Default
-        Error
-        {}
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 GotNameAs
 {
-    CommandJoin
-        GotJoin
-        {}
+    process(token: const Token&) [ctxt.IsJoin(token)]
+    GotJoin
+    {}
 
-    Default
-        Error
-        {}
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 GotJoin
 {
-    ID(name: std::string)
-        End
-        {
-            setName2(name);
-            setCreateJoin();
-        }
+    process(token: const Token&) [ctxt.IsId(token)]
+    End
+    {
+        setName2(token.text);
+        markCreateJoin();
+    }
 
-    Default
-        Error
-        {}
-
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 End
 {
-    EOL
-        Accept
-        {
-            executeCommand();
-            resetLine();
-        }
+    process(token: const Token&) [ctxt.IsEol(token)]
+    Accept
+    {
+        executeCommand();
+        resetLine();
+    }
 
-    Default
-        Error
-        {
-            syntaxError();
-            resetLine();
-        }
+    process(token: const Token&)
+    Error
+    {
+        syntaxError();
+        resetLine();
+    }
 }
 
 Accept
 {
-    Default
-        nil //переход в самого себя
-        {}
+    process(token: const Token&) [ctxt.IsEol(token)]
+    nil
+    {}
+
+    process(token: const Token&)
+    Error
+    {}
 }
 
 Error
 {
-    Default
-        nil
-        {}
-}
+    process(token: const Token&) [ctxt.IsEol(token)]
+    Start
+    {}
 
-/* Global transitions */
-Default //можно убрать Default во всех остальных и он автоматически подставиться
-{
-    Default
-        Error
-        {
-            syntaxError();
-            resetLine();
-        }
+    process(token: const Token&)
+    nil
+    {}
 }
 
 %%

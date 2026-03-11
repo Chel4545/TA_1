@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include "../Store/RelationStore.h"
+#include "Tokenizer.h"
 
 enum class Command {
     NONE,
@@ -45,6 +46,16 @@ public:
     void resetLine();
 
     bool isLineOk() const;
+
+    bool IsCreate(const Token& token) const { return token.type == TokenType::CREATE; }
+    bool IsAs(const Token& token) const { return token.type == TokenType::AS; }
+    bool IsJoin(const Token& token) const { return token.type == TokenType::JOIN; }
+    bool IsId(const Token& token) const { return token.type == TokenType::ID; }
+    bool IsLParen(const Token& token) const { return token.type == TokenType::LPAREN; }
+    bool IsRParen(const Token& token) const { return token.type == TokenType::RPAREN; }
+    bool IsComma(const Token& token) const { return token.type == TokenType::COMMA; }
+    bool IsEol(const Token& token) const { return token.type == TokenType::EOL; }
+    bool IsInvalid(const Token& token) const { return token.type == TokenType::INVALID; }
 };
 
 #endif
