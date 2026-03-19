@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.31)
-
 find_package(FLEX REQUIRED)
 
-FLEX_TARGET(FlexScanner
+flex_target(FlexScanner
         ${CMAKE_CURRENT_SOURCE_DIR}/flex.l
-        ${CMAKE_CURRENT_BINARY_DIR}/lex.yy.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lex.yy.cpp
 )
 
 set_source_files_properties(${FLEX_FlexScanner_OUTPUTS} PROPERTIES LANGUAGE CXX)
@@ -18,4 +16,7 @@ target_include_directories(flex_module PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(flex_module PUBLIC store)
+target_link_libraries(flex_module PUBLIC
+        store
+        fl
+)

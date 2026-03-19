@@ -23,7 +23,7 @@ private:
 public:
     explicit RegExClass(RelationStore& relStore);
 
-    bool pars(std::string_view line);
+    std::pair<bool, std::string> pars(std::string_view line);
 };
 
 

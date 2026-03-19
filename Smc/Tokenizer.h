@@ -6,33 +6,16 @@
 #include <utility>
 #include <vector>
 #include "SmcClass.h"
-
-enum class TokenType {
-    CREATE,
-    AS,
-    JOIN,
-    ID,
-    LPAREN,
-    RPAREN,
-    COMMA,
-    EOL,
-    INVALID
-};
-
-struct Token {
-    TokenType type;
-    std::string text;
-};
+#include "Tokens.h"
 
 class Tokenizer {
 public:
-    std::pair<bool, std::string> parse(std::string_view line);
+    std::vector<TokenStruct> getTokens(std::string_view line);
 
 private:
     std::string input;
     std::size_t pos = 0;
-    std::vector<Token> tokens;
-    SmcClass& ctxt;
+    std::vector<TokenStruct> tokens;
 
     inline static const std::string CREATE_KW = "create";
     inline static const std::string AS_KW     = "as";
@@ -43,9 +26,8 @@ private:
     inline static constexpr char COMMA_CH  = ',';
 
 private:
-    explicit Tokenizer(SmcClass& newSmcCalss) : ctxt(newSmcCalss) {}
 
-    std::vector<Token> tokenize(const std::string& line);
+    std::vector<TokenStruct> tokenize();
     bool getCreate();
     bool skipNecSpace();
     bool skipOptSpace();

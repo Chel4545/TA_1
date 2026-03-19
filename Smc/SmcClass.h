@@ -7,7 +7,7 @@
 #include <vector>
 #include <utility>
 #include "../Store/RelationStore.h"
-#include "Tokenizer.h"
+#include "Tokens.h"
 
 enum class Command {
     NONE,
@@ -26,7 +26,8 @@ private:
 
     Command currentCommand = Command::NONE;
 
-    bool lineOk = true;
+    bool lineOkCreate = true;
+    bool lineOkJoin   = true;
 
 public:
     explicit SmcClass(RelationStore& relStore);
@@ -40,22 +41,25 @@ public:
     void setCreateList();
     void setCreateJoin();
 
-    void executeCommand() const;
+    void executeCommand();
 
     void syntaxError();
     void resetLine();
 
-    bool isLineOk() const;
+    Command getCommand() const;
 
-    bool IsCreate(const Token& token) const { return token.type == TokenType::CREATE; }
-    bool IsAs(const Token& token) const { return token.type == TokenType::AS; }
-    bool IsJoin(const Token& token) const { return token.type == TokenType::JOIN; }
-    bool IsId(const Token& token) const { return token.type == TokenType::ID; }
-    bool IsLParen(const Token& token) const { return token.type == TokenType::LPAREN; }
-    bool IsRParen(const Token& token) const { return token.type == TokenType::RPAREN; }
-    bool IsComma(const Token& token) const { return token.type == TokenType::COMMA; }
-    bool IsEol(const Token& token) const { return token.type == TokenType::EOL; }
-    bool IsInvalid(const Token& token) const { return token.type == TokenType::INVALID; }
+    bool isLineOkCreate() const;
+    bool isLineOkJoin() const;
+
+    bool IsCreate(const TokenStruct& token) const { return token.type == TokenType::CREATE; }
+    bool IsAs(const TokenStruct& token) const { return token.type == TokenType::AS; }
+    bool IsJoin(const TokenStruct& token) const { return token.type == TokenType::JOIN; }
+    bool IsId(const TokenStruct& token) const { return token.type == TokenType::ID; }
+    bool IsLParen(const TokenStruct& token) const { return token.type == TokenType::LPAREN; }
+    bool IsRParen(const TokenStruct& token) const { return token.type == TokenType::RPAREN; }
+    bool IsComma(const TokenStruct& token) const { return token.type == TokenType::COMMA; }
+    bool IsEol(const TokenStruct& token) const { return token.type == TokenType::EOL; }
+    bool IsInvalid(const TokenStruct& token) const { return token.type == TokenType::INVALID; }
 };
 
 #endif

@@ -1,43 +1,11 @@
+%option noyywrap
+
 %{
 #include <iostream>
-#include "../Store/RelationStore.h"
+#include <string>
+#include "FlexParser.h"
 
-#ifdef __cplusplus
-#define YY_DECL extern "C" int yylex(void)
-#else
 #define YY_DECL int yylex(void)
-#endif
-
-enum class Token {
-    START = 1,
-    COMMAND_CREATE,
-    COMMAND_AS,
-    COMMAND_JOIN,
-    ID_NAME,
-    SYMBOL_COMMA,
-    SYMBOL_LPAREN,
-    SYMBOL_RPAREN,
-    ERROR
-};
-
-enum class State {
-    START = 1,
-    GOT_CREATE,
-    GOT_NAME,
-    GOT_NAME_AS,
-    IN_LIST,
-    GOT_AS,
-    GOT_JOIN,
-    AFTER_ID,
-    END,
-    ERROR_STATE
-};
-
-enum class CommandType {
-    NONE,
-    CREATE_LIST,
-    CREATE_JOIN
-};
 
 %}
 
@@ -52,39 +20,25 @@ join                    { return static_cast<int>(Token::COMMAND_JOIN);   }
 "("                     { return static_cast<int>(Token::SYMBOL_LPAREN); }
 ")"                     { return static_cast<int>(Token::SYMBOL_RPAREN); }
 
-[ \t]+              ;
+[ \t\r]+              ;
 
 .                       { return static_cast<int>(Token::ERROR);         }
 %%
 
 
-class FlexParser : public IPars {
-private:
-    State state = State::START;
 
-    std::string name0;
-    std::string name1;
-    std::string name2;
+std::pair<bool, std::string> FlexParser::pars(std::string_view line) {
+    state = State::START;
+    attributes.clear();
+    currentCommand = CommandType::NONE;
 
-    std::vector<std::string> attributes;
+    std::string s(line);
+    YY_BUFFER_STATE buf = yy_scan_bytes(line.data(), (int)line.size());
 
-    RelationStore& store;
-    CommandType currentCommand = CommandType::NONE;
+    int raw = 0;
+    while ((raw = yylex()) != 0) {
 
-public:
-    explicit FlexParser(RelationStore& s) : store(s) {};
-
-    bool pars(std::string_view line) {
-        state = State::START;
-        attributes.clear();
-        currentCommand = CommandType::NONE;
-
-        YY_BUFFER_STATE buf = yy_scan_bytes(line.data(), (int)line.size());
-
-        int raw = 0;
-        while ((raw = yylex()) != 0) {
-
-            Token token = static_cast<Token>(raw);
+        Token token = static_cast<Token>(raw);
 
             switch (state) {
                 //1 команда
@@ -159,39 +113,35 @@ public:
                 case State::ERROR_STATE:
                     break;
                 case State::END:
-                    if (currentCommand == CommandType::CREATE_LIST) {
-                        store.addRel(name0, attributes);
-                    } else if (currentCommand == CommandType::CREATE_JOIN) {
-                        store.makeJoin(name0, name1, name2);
-                    }
+                    state = State::ERROR_STATE;
                     break;
             }
 
             if (state == State::ERROR_STATE) {
-                break;
-            }
-
-            if (state == State::END) {
-                if (currentCommand == CommandType::CREATE_LIST) {
-                    store.addRel(name0, attributes);
-                } else if (currentCommand == CommandType::CREATE_JOIN) {
-                    store.makeJoin(name0, name1, name2);
-                }
-                state = State::START;
-                attributes.clear();
-                currentCommand = CommandType::NONE;
-                break;
+                yy_delete_buffer(buf);
+                return {false, "Unknown command"};
             }
         }
 
         yy_delete_buffer(buf);
 
-        if (state == State::END) {
-            std::cout << "Commands is correct\n";
-        } else {
-            std::cout << "Syntax error\n";
+        if (state != State::END) {
+            return {false, "Unknown command"};
         }
 
-        return state != State::ERROR_STATE;
-    }
-};
+        if (currentCommand == CommandType::CREATE_LIST) {
+            bool ok = store.addRel(name0, attributes);
+            return ok
+                ? std::make_pair(true, "Make create: " + s)
+                : std::make_pair(false, "Create failed");
+        }
+
+        if (currentCommand == CommandType::CREATE_JOIN) {
+            bool ok = store.makeJoin(name0, name1, name2);
+            return ok
+                ? std::make_pair(true, "Make join: " + s)
+                : std::make_pair(false, "Join failed");
+        }
+
+        return {false, "Unknown command"};
+}

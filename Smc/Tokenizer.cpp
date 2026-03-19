@@ -6,32 +6,23 @@
 #include <string_view>
 #include <utility>
 
-std::pair<bool, std::string> Tokenizer::parse(std::string_view line) {
+std::vector<TokenStruct> Tokenizer::getTokens(std::string_view line) {
     input = std::string(line);
     pos = 0;
     tokens.clear();
 
-    tokenize(input);
-
-    if (pos != input.size()) {
-        return {false, "Лишние символы в конце строки"};
-    }
-
-    ctxt.resetLine();
-    ContextFSM fsm(ctxt);
-    fsm.enterStartState();
-
-    for(const auto& tok : tokens) {
-        fsm.process(tok);
-    }
-
-    return {true, ""};
+    return tokenize();
 }
 
-std::vector<Token> Tokenizer::tokenize(const std::string& line) {
+std::vector<TokenStruct> Tokenizer::tokenize() {
 
     while (pos < input.size()) {
         skipOptSpace();
+
+        if (pos >= input.size()) {
+            break;
+        }
+
         if (getCreate()) {
             skipNecSpace();
             continue;
@@ -63,7 +54,6 @@ std::vector<Token> Tokenizer::tokenize(const std::string& line) {
     }
 
     tokens.push_back({TokenType::EOL, ""});
-
     return tokens;
 }
 
@@ -142,18 +132,25 @@ bool Tokenizer::skipOptSpace() {
 }
 
 bool Tokenizer::getName() {
-    char next = input[pos];
-    if (std::isspace(static_cast<unsigned char>(next))) {
+    if (pos >= input.size()) return false;
+
+    char c = input[pos];
+    if (!(std::isalpha(static_cast<unsigned char>(c)) || c == '_' || c == '.')) {
         return false;
     }
-    std::string NAME;
-    while(!std::isspace(static_cast<unsigned char>(next))) {
-        NAME += next;
-        pos++;
-        next = input[pos];
+
+    std::string name;
+    while (pos < input.size()) {
+        char ch = input[pos];
+        if (std::isalnum(static_cast<unsigned char>(ch)) || ch == '_' || ch == '.') {
+            name += ch;
+            ++pos;
+        } else {
+            break;
+        }
     }
 
-    tokens.push_back({TokenType::ID, NAME});
+    tokens.push_back({TokenType::ID, name});
     return true;
 }
 

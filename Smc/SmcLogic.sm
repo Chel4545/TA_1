@@ -5,6 +5,7 @@
 %class SmcClass
 %fsmclass ContextFSM
 %fsmfile ContextFSM
+%header "SmcClass.h"
 
 %start ExampleMap::Start
 
@@ -14,180 +15,170 @@
 
 Start
 {
-    process(token: const Token&) [ctxt.IsCreate(token)]
+    process(token: const TokenStruct&) [ctxt.IsCreate(token)]
     GotCreate
     {
         resetLine();
     }
 
-    process(token: const Token&) [ctxt.IsEol(token)]
+    process(token: const TokenStruct&) [ctxt.IsEol(token)]
     nil
     {}
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 GotCreate
 {
-    process(token: const Token&) [ctxt.IsId(token)]
+    process(token: const TokenStruct&) [ctxt.IsId(token)]
     GotName
     {
         setName0(token.text);
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 GotName
 {
-    process(token: const Token&) [ctxt.IsLParen(token)]
+    process(token: const TokenStruct&) [ctxt.IsLParen(token)]
     InList
     {
         setCreateList();
     }
 
-    process(token: const Token&) [ctxt.IsAs(token)]
+    process(token: const TokenStruct&) [ctxt.IsAs(token)]
     GotAs
     {
         setCreateJoin();
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 InList
 {
-    process(token: const Token&) [ctxt.IsId(token)]
+    process(token: const TokenStruct&) [ctxt.IsId(token)]
     AfterId
     {
         setAttribute(token.text);
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 AfterId
 {
-    process(token: const Token&) [ctxt.IsComma(token)]
+    process(token: const TokenStruct&) [ctxt.IsComma(token)]
     InList
     {}
 
-    process(token: const Token&) [ctxt.IsRParen(token)]
+    process(token: const TokenStruct&) [ctxt.IsRParen(token)]
     End
     {
-        markCreateList();/.тут выполнение команды
+        setCreateList();
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 GotAs
 {
-    process(token: const Token&) [ctxt.IsId(token)]
+    process(token: const TokenStruct&) [ctxt.IsId(token)]
     GotNameAs
     {
         setName1(token.text);
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 GotNameAs
 {
-    process(token: const Token&) [ctxt.IsJoin(token)]
+    process(token: const TokenStruct&) [ctxt.IsJoin(token)]
     GotJoin
     {}
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 GotJoin
 {
-    process(token: const Token&) [ctxt.IsId(token)]
+    process(token: const TokenStruct&) [ctxt.IsId(token)]
     End
     {
         setName2(token.text);
-        markCreateJoin();
+        setCreateJoin();
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 End
 {
-    process(token: const Token&) [ctxt.IsEol(token)]
+    process(token: const TokenStruct&) [ctxt.IsEol(token)]
     Accept
     {
         executeCommand();
-        resetLine();
     }
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {
         syntaxError();
-        resetLine();
     }
 }
 
 Accept
 {
-    process(token: const Token&) [ctxt.IsEol(token)]
+    process(token: const TokenStruct&) [ctxt.IsEol(token)]
     nil
     {}
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     Error
     {}
 }
 
 Error
 {
-    process(token: const Token&) [ctxt.IsEol(token)]
+    process(token: const TokenStruct&) [ctxt.IsEol(token)]
     Start
     {}
 
-    process(token: const Token&)
+    process(token: const TokenStruct&)
     nil
     {}
 }

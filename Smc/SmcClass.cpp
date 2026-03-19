@@ -28,28 +28,41 @@ void SmcClass::setCreateJoin() {
     currentCommand = Command::CREATE_JOIN;
 }
 
-void SmcClass::executeCommand() const{
-    if (!lineOk) return;
+void SmcClass::executeCommand() {
 
     if (currentCommand == Command::CREATE_LIST) {
-        store.addRel(name0, attributes);
+        if (!store.addRel(name0, attributes)) {
+            lineOkCreate = false;
+        }
     }
     else if (currentCommand == Command::CREATE_JOIN) {
-        store.makeJoin(name0, name1, name2);
+        if(!store.makeJoin(name0, name1, name2)) {
+            lineOkJoin = false;
+        }
     }
 }
 
 void SmcClass::resetLine() {
     attributes.clear();
     currentCommand = Command::NONE;
-    lineOk = true;
+    lineOkCreate = true;
+    lineOkJoin   = true;
 }
 
-bool SmcClass::isLineOk() const {
-    return lineOk;
+bool SmcClass::isLineOkCreate() const {
+    return lineOkCreate;
+}
+
+bool SmcClass::isLineOkJoin() const {
+    return lineOkJoin;
 }
 
 void SmcClass::syntaxError() {
-    lineOk = false;
+    lineOkCreate = false;
+    lineOkJoin   = false;
     currentCommand = Command::NONE;
+}
+
+Command SmcClass::getCommand() const {
+    return currentCommand;
 }

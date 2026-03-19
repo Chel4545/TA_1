@@ -7,7 +7,7 @@
 class IPars {
 public:
     virtual ~IPars() = default;
-    virtual bool pars(std::string_view line) = 0;
+    virtual std::pair<bool, std::string> pars(std::string_view line) = 0;
 };
 
 #endif
