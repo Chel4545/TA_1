@@ -1,5 +1,5 @@
 %option noyywrap
-
+%type Token
 %{
 #include <iostream>
 #include <string>

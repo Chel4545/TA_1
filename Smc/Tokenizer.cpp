@@ -123,8 +123,7 @@ bool Tokenizer::skipNecSpace() {
 }
 
 bool Tokenizer::skipOptSpace() {
-    while (pos < input.size() &&
-           std::isspace(static_cast<unsigned char>(input[pos]))) {
+    while (pos < input.size() && std::isspace(static_cast<unsigned char>(input[pos]))) {
         ++pos;
     }
 
